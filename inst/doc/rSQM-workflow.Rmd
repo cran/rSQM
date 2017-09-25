@@ -1,0 +1,347 @@
+---
+title: "rSQM workflow"
+author: "APEC Climate Center"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+ Since the workflow is kind of complicated(Don't worry. It's not hard.), this vignette shows you how to run the `rSQM` package to do a downscaling process with CMIP5([Coupled model intercomparison project 5](https://en.wikipedia.org/wiki/Coupled_model_intercomparison_project)) data and observation data. If you want to see more about the data used in this package and APEC climate center, visit our website http://www.apcc21.org.
+
+
+# Arguments yaml file. 
+
+ This procedure needs many datasets which tend to be large. Therefore, It is recommended to use meticulous directory structure, such as, project directory, observation directory, CMIP5 directory and so on. Before explaining those directories, see below `yaml` formatted file.
+```
+prjdir: D:/"Your project name"/foo
+dbdir: D:/"Your project name"/Database
+stndir: $(prjdir)/Observed/"station or regional name recommened"
+bnddir: $(prjdir)/gis-boundary
+qmapdir: $(prjdir)/Downscale/SQM
+syear_obs: 1976     # Starting year of observed data
+eyear_obs: 2005     # Ending year of observed data
+syear_his: 1976     # Starting year of historical period (GCM)
+eyear_his: 2005     # Ending year of historical period (GCM)
+syear_scn:         
+  - 2010
+  - 2040
+eyear_scn:
+  - 2039
+  - 2069
+SimAll: FALSE       # Option for simulation all (GCM model, Variable, RCPs) combinations
+ModelNames:
+  - bcc-csm1-1-m    # Beijing Climate Center,  China Meteorological Administration (128x64)
+  - CanESM2         # Canadian Centre for Climate Modelling and Analysis (128x64)
+  - CMCC-CMS        # Centro Euro-Mediterraneo per I Cambiamenti Climatici (192x96)
+  - CSIRO-Mk3-6-0   # Commonwealth Scientific and Industrial Research Organisation in  collaboration with the Queensland Climate Change Centre of Excellence (192x96)
+  - FGOALS-g2       # LASG, Institute of Atmospheric Physics, Chinese Academy of  Sciences; and CESS, Tsinghua University (128x60)
+  - HadGEM2-AO      # National Institute of Meteorological Research, Korea Meteorological Administration (192x145)
+  - inmcm4          # Institute for Numerical Mathematics (180x120)
+  - IPSL-CM5A-LR    # Institut Pierre-Simon Laplace (96x96)
+  - MIROC-ESM       # Japan Agency for Marine-Earth Science and Technology, Atmosphere and Ocean Research Institute, and  National Institute for Environmental Studies (128x64)
+  - MPI-ESM-LR      # Max Planck Institute for Meteorology (MPI-M) (192x96)
+  - NorESM1-M       # Norwegian Climate Centre (144x96)
+RcpNames:
+  - rcp85           # Representative Concentration Pathway (RCP) 8.5 Scenarios
+VarNames:
+  - pr              #Precipitation (mm)
+  - tasmax          #Max. temperature (C)
+  - tasmin          #Min. temperature (C)
+NtlCode: KR
+stnfile: Station-Info.csv   # Station meta file, name it dishtinguibly in case many regions involved.
+bndfile: Korea.shp
+OWrite: TRUE
+SRadiation: FALSE
+```
+ You might be familiar with those arguments, now see each of them one by one. At first, you create a super directory at large memory available path with name distinguishable, date and region are really good things to be written in the name, making your job path distinguishable. In this vignette, I name the name "APCC"(APEC Climate Center). D:/APCC.
+```
+prjdir: D:/APCC/project # This is your project directory where the downscaled results would be filed up.
+dbdir: D:/APCC/Database # This is your database directory where the CMIP5 data needed for the work would be saved.
+stndir: $(prjdir)/Observed/Korea # This is the directory to be filed up with observation data. I name it "Korea" in this tutorial
+```
+ Above three directories(prjdir, dbdir, stndir) must be prepared(created) in advance. That's because we assume you have your own observation data beforehand.
+ You need to store station csv file and observation csv file in stndir(station directory). Station file(stnfile) is described in detail below. Observation file should be csv formatted and look like this. Each file name must contain the station ID(eg, ID108).
+ 
+|Year|Mon|Day|Pcp(mm)|Tmax(c)|Tmin(c)|WSpeed(m/s)|RHumidity(fr)|SRad(MJ/m2)|
+|:--:|:-:|:-:|:-----:|:-----:|:-----:|:---------:|:-----------:|:---------:|
+|1969| 1 | 1 | 0.1   | -3.3  | -11   | 1.5       | 0.727       | 13.9      |
+|1969| 1 | 2 | 0     | -6.4  | -12.9 | 1.8       | 0.8         | 12.8      |
+|1969| 1 | 3 | 0.1   | -4.2  | -14.4 | 2.6       | 0.813       | 7.75      |
+|1969| 1 | 4 | 0     | 0.7   | -10.4 | 2.7       | 0.617       | 16.46     |
+|1969| 1 | 5 | 3.9   | -1    | -8.6  | 4.4       | 0.86        | 8.44      |
+|1969| 1 | 6 | ...   | ...   | ...   | ...       | ...         | ...       |
+
+ Header names are not much critical, but the order is. `Year`, `Month`, `Day`, `Precipitation`, `Tasmax`, `Tasmin`, `Wind Speed`, `Relative Humidity`, and `Solar Radiation` should be in this order. Of course, the unit matters too.
+
+```
+bnddir: $(prjdir)/gis-boundary # Under development, providing shp. files for further work.
+qmapdir: $(prjdir)/Downscale/SQM # This directory will contain final result passed through SQM(Simple Quantile Mapping)
+syear_obs: 1976     # Starting year of observed data
+eyear_obs: 2005     # Ending year of observed data
+syear_his: 1976     # Starting year of historical period (GCM)
+eyear_his: 2005     # Ending year of historical period (GCM)
+syear_scn:         
+  - 2010
+  - 2040
+eyear_scn:
+  - 2039
+  - 2069            # Start years and End years of climate change scenario.
+SimAll: FALSE       # Option for simulation all (GCM model, Variable, RCPs) combinations
+```
+ If you put TRUE to SimAll argument, your process runs over all the models including GCMs, RCMs and RCPs. Obviously, takes a long time.
+```
+ModelNames:
+  - bcc-csm1-1-m    # Beijing Climate Center,  China Meteorological Administration (128x64)
+  - CanESM2         # Canadian Centre for Climate Modelling and Analysis (128x64)
+  - CMCC-CMS        # Centro Euro-Mediterraneo per I Cambiamenti Climatici (192x96)
+  - CSIRO-Mk3-6-0   # Commonwealth Scientific and Industrial Research Organisation in  collaboration with the Queensland Climate Change Centre of Excellence (192x96)
+  - FGOALS-g2       # LASG, Institute of Atmospheric Physics, Chinese Academy of  Sciences; and CESS, Tsinghua University (128x60)
+  - HadGEM2-AO      # National Institute of Meteorological Research, Korea Meteorological Administration (192x145)
+  - inmcm4          # Institute for Numerical Mathematics (180x120)
+  - IPSL-CM5A-LR    # Institut Pierre-Simon Laplace (96x96)
+  - MIROC-ESM       # Japan Agency for Marine-Earth Science and Technology, Atmosphere and Ocean Research Institute, and  National Institute for Environmental Studies (128x64)
+  - MPI-ESM-LR      # Max Planck Institute for Meteorology (MPI-M) (192x96)
+  - NorESM1-M       # Norwegian Climate Centre (144x96)
+RcpNames:
+  - rcp85           # Representative Concentration Pathway (RCP) 8.5 Scenarios
+```
+ Otherwise, FALSE on SimAll, and specify model names you want to use in simulation.
+```
+VarNames:
+  - pr              #Precipitation (mm)
+  - tasmax          #Max. temperature (C)
+  - tasmin          #Min. temperature (C)
+```
+ Variable names, pr(precipitation inmm), tasmax/tasmin(max/min temperature in Celcius degree), sfcWind(wind speed in m/s), rhs(relative humidity in fraction, not percentage), rsds(solar radiation in Mega Joule per square meter)
+```
+NtlCode: KR         
+```
+ National Code used when downloading clipped CMIP5 data from ADSS(APEC Data Service Syetem). If you have no idea, visit ADSS website. You can find the national code of the region of your interest.
+```
+stnfile: Station-Info.csv
+```
+ 'stnfile' is a csv(comma-seperated values) file. This is a kind of meta file over all the station information. One picture is worth a thousand words, see below.
+
+| Lon     | Lat     | Elev | ID    | Ename   | SYear |
+|:-------:|:-------:|:----:|:-----:|:-------:|:-----:|
+| 126.95  | 37.5667 | 85.8 | ID108 | Seoul   | 1908  |
+| 127.3667| 36.3667 | 68.9 | ID133 | Daejeon | 1969  |
+| 129.0167| 35.1    | 69.6 | ID159 | Busan   | 1905  |
+
+ Lon, Lat, and Elev are Longitude, Latitude, and Elevation of observatory respectively. And ID is the ID of obvervatory and Ename is the region where it is. SYear is the year the observation starts. There is one more thing you need to be aware of. If you lack of your own observation data so use GHCN observation data, name the stnfile 'Station-Info.csv'. We know it seems to be little awkward. But, the procedure is designed to run with that name over GHCN data.
+ 
+```
+bndfile: Korea.shp  # Under development, the shape file for further work.
+OWrite: TRUE
+```
+ Downscaling process is heavy work. That means sometimes you need pause it and go again. Then you put TURE on OWrite(Overwrite) which make things continue.
+```
+SRadiation: FALSE
+```
+ SRadiation(Solar Radiation) is a variable not likely to be. If it is luckily, put TRUE on it.
+ 
+********
+# Workflow
+ 
+ Now we complete writing yaml file, that is, necessary arguments are prepared. Before going on, let's review the directories and corresponing data.
+```
+Your Working Directory(recommended to be in where large amount of disk memory available)
+        |
+        |  In your working directory, the yaml file which has necessary arguments must be in.
+      -------------------
+      |                 |
+  Database            Project Diretory
+      |                           |
+ CMIP5 Directory          ---------------------------------------
+      |                   |                   |                 |
+ CMIP5 scenario data   gis-boundary       Observed          Downscale
+downloaded from ADSS      |                   |                 |(final downscaled results)
+must have 4073 files.   shape file          KOREA               -------
+                       (Under dev.)   (or the region you        |     |
+                                       are interested in.)     OBS   SQM
+                                              |
+                                station meta file and observation csv files
+                              for each stations(meteorological observatories)
+```
+
+###0. Write down your project details in yaml format and place it in your working directory
+  Set your working directory, say it `D:/rSQMsample`, and create prjdir(`D:/rSQMsample/prj`), dbdir(`D:/rSQMsample/prj/Database`) and stndir(`D:/rSQMsample/prj/Observed/Korea`). If you have your own observation data and station information, let them in stndir.
+
+###1. load library and set working directory
+```
+>library(rSQM)
+>setwd("D:/sampleProject")
+```
+
+###2. Set working environment and parameters needed.
+```
+>EnvList <- SetWorkingEnvironment(envfile = "rSQM.yaml")
+```
+Let's look into this EnvList file, which is list object containing arguments.
+
+```
+>EnvList
+$prjdir
+[1] "D:/rSQMsample/prj"
+
+$dbdir
+[1] "D:/rSQMsample/Database"
+
+$qmapdir
+[1] "D:/rSQMsample/prj/Downscale/SQM"
+
+$bnddir
+[1] "D:/rSQMsample/prj/gis-boundary"
+
+$stndir
+[1] "D:/rSQMsample/prj/Observed/Korea"
+
+$syear_obs
+[1] 1976
+
+$eyear_obs
+[1] 2005
+
+$syear_his
+[1] 1976
+
+$eyear_his
+[1] 2005
+
+$syear_scn
+[1] 2010 2040
+
+$eyear_scn
+[1] 2039 2069
+
+$SimAll
+[1] FALSE
+
+$ModelNames
+ [1] "bcc-csm1-1-m"  "CanESM2"       "CMCC-CMS"      "CSIRO-Mk3-6-0"
+ [5] "FGOALS-g2"     "HadGEM2-AO"    "inmcm4"        "IPSL-CM5A-LR" 
+ [9] "MIROC-ESM"     "MPI-ESM-LR"    "NorESM1-M"    
+
+$RcpNames
+[1] "rcp85"
+
+$VarNames
+[1] "pr"     "tasmax" "tasmin"
+
+$NtlCode
+[1] "KR"
+
+$stndir
+[1] "D:/rSQMsample/prj/Observed/Korea"
+
+$stnfile
+[1] "Station-Info.csv"
+
+$bndfile
+[1] "Korea.shp"
+
+$OWrite
+[1] TRUE
+
+$SRadiation
+[1] FALSE
+
+$cmip5dir
+[1] "D:/rSQMsample/Database/cmip5_daily_KR"
+```
+ The other directories, qmapdir, bnddir, and cmip5dir, are created automatically in right path.
+
+###3. Load Clipped CMIP5 scenario data from ADSS(APCC Data Service System) 
+ The CMIP5 data is clipped and served by APEC Climate Center.
+```
+LoadCmip5DataFromAdss(dbdir = EnvList$dbdir, NtlCode = EnvList$NtlCode)
+```
+or just type
+```
+do.call(LoadCmip5DataFromAdss, EnvList)
+```
+After some little time with pop up logging, the data are located in `D:\rSQMsample\Database\cmip5_daily_KR`. `daily` means the scenario data is daily-scaled and KR standing for the national code.
+
+(Optional). Load observations from GHCN(Global Historical Climatology Network)
+```
+ GhcnDailyUpdate(
+   NtlCode = EnvList$NtlCode,
+   stndir = EnvList$stndir,
+   syear_obs = EnvList$syear_obs,
+   eyear_obs = EnvList$eyear_obs)
+```
+or just
+```
+do.call(GhcnDailyUpdate, EnvList)
+```
+If there is no your own observation data, [Global Historical Climatology Network](https://www.ncdc.noaa.gov/data-access/land-based-station-data/land-based-datasets/global-historical-climatology-network-ghcn) provides world-wide meteorological observations. You can download the data 'GhcnDailyUpdate' function. However, We recommend you that prepare own observation dataset since Ghcn data often has lots of missing values.
+When this step is done, the station metafile(named `Station-Info.csv`) and Observations are located in stndir.
+
+###4. Downscale Daily CMIP5 Data
+ Now that you have all necessary input data, let's begin downscaling process. This extracts daily time series for every combination of varialbes, GCM models, and RCP scenarios as text format.
+```
+DailyExtractAll(
+  cmip5dir = EnvList$cmip5dir,
+  stndir = EnvList$stndir,
+  stnfile = EnvList$stnfile,
+  qmapdir = EnvList$qmapdir,
+  SimAll = EnvList$SimAll,
+  ModelNames = EnvList$ModelNames,
+  RcpNames = EnvList$RcpNames,
+  VarNames = EnvList$VarNames,
+  OWrite = EnvList$OWrite)
+```
+or just
+```
+do.call(DailyExtractAll, EnvList)
+```
+After `DailyExtractAll` function is over successfully. For each scenario mode, corresponding directory is created in qmapdir `D:/rSQMsample/prj/Downscale/SQM`. For instance, `CanESM2` model directory is `D:/rSQMsample/prj/Downscale/SQM/CanESM2`. Temporary files are stored in `'model directory'/365adj`, that's because the number of days per year differs from models, so `DailyExtractAll` calls internal logic and adjusts it in 365 days. Those temporary files are used in quantile mapping step at following step.
+
+
+###5. Bias Correction using Simple Quantile-Mapping (SQM)
+```
+DailyQMapAll(
+  stndir = EnvList$stndir,
+  stnfile = EnvList$stnfile,
+  qmapdir = EnvList$qmapdir,
+  prjdir = EnvList$prjdir,
+  SimAll = EnvList$SimAll,
+  RcpNames = EnvList$RcpNames,
+  VarNames = EnvList$VarNames,
+  syear_obs = EnvList$syear_obs,
+  eyear_obs = EnvList$eyear_obs,
+  syear_his = EnvList$syear_his,
+  eyear_his = EnvList$eyear_his,
+  syear_scn = EnvList$syear_scn,
+  eyear_scn = EnvList$eyear_scn,
+  OWrite = EnvList$OWrite,
+  SRadiation = EnvList$SRadiation)
+```
+or just
+```
+do.call(DailyQMapAll, EnvList)
+```
+This is the last step apply quantile mapping over the downscaled data. The results are in `D:/rSQMsample/prj/Downscale/SQM/"Model Name"`. Specifically, assumed that we went through abovr steps with station `ID108`, model `CanESM2`, and rcp scenario `rcp45`. Then 4 result generated.
+```
+ID108_SQM_CanESM2_historical.csv
+ID108_SQM_CanESM2_historical_original.csv
+ID108_SQM_CanESM2_rcp45.csv`
+ID108_SQM_CanESM2_rcp45_original.csv`
+```
+"original" implies that "before quantile-mapping". "historical" files are retult over historical period, and "rcp45" files are over future period.
+
+
+
+
+********
+## Additional Remarks
+
+1. A process over this package needs to connect to web server to download required data. This means that unstable internet connectivity fails works.
+2. If you have any problem, contact climate.service@apcc21.org
+
+
+Hope this package would be useful. :)
+

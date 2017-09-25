@@ -1,0 +1,33 @@
+prjdir: rSQM_Sample_Project
+dbdir: Database
+stndir: $(prjdir)/Observed/SampleProject
+bnddir: $(prjdir)/gis-boundary
+qmapdir: $(prjdir)/Downscale/SQM
+syear_obs: 1976     # Starting year of observed data
+eyear_obs: 2005     # Ending year of observed data
+syear_his: 1976     # Starting year of historical period (GCM)
+eyear_his: 2005     # Ending year of historical period (GCM)
+syear_scn:
+  - 2010
+  - 2040
+eyear_scn:
+  - 2039
+  - 2069
+SimAll: FALSE       # Option for simulation all (GCM model, Variable, RCPs) combinations
+ModelNames:
+  - bcc-csm1-1      # Beijing Climate Center,  China Meteorological Administration (128x64)
+  - CanESM2         # Canadian Centre for Climate Modelling and Analysis (128x64)
+  - HadGEM2-CC      # National Institute of Meteorological Research, Korea Meteorological Administration (192x145)
+  - inmcm4          # Institute for Numerical Mathematics (180x120)
+  - IPSL-CM5A-LR    # Institut Pierre-Simon Laplace (96x96)
+  - MIROC-ESM       # Japan Agency for Marine-Earth Science and Technology, Atmosphere and Ocean Research Institute, and  National Institute for Environmental Studies (128x64)
+RcpNames:
+  - rcp85           # Representative Concentration Pathway (RCP) 8.5 Scenarios
+VarNames:
+  - pr              #Precipitation (mm)
+  - tasmax          #Max. temperature (C)
+NtlCode: NtlCode    # We've already 
+stnfile: Sample_3-Stations.csv   # If you use GHCN data, use "Station-Info.csv"
+bndfile: Sample.shp
+OWrite: TRUE
+SRadiation: FALSE

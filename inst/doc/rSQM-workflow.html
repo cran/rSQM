@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<meta name="author" content="APEC Climate Center" />
+
+<meta name="date" content="2017-09-20" />
+
+<title>rSQM workflow</title>
+
+
+
+
+
+
+<link href="data:text/css;charset=utf-8,body%20%7B%0Abackground%2Dcolor%3A%20%23fff%3B%0Amargin%3A%201em%20auto%3B%0Amax%2Dwidth%3A%20700px%3B%0Aoverflow%3A%20visible%3B%0Apadding%2Dleft%3A%202em%3B%0Apadding%2Dright%3A%202em%3B%0Afont%2Dfamily%3A%20%22Open%20Sans%22%2C%20%22Helvetica%20Neue%22%2C%20Helvetica%2C%20Arial%2C%20sans%2Dserif%3B%0Afont%2Dsize%3A%2014px%3B%0Aline%2Dheight%3A%201%2E35%3B%0A%7D%0A%23header%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0A%23TOC%20%7B%0Aclear%3A%20both%3B%0Amargin%3A%200%200%2010px%2010px%3B%0Apadding%3A%204px%3B%0Awidth%3A%20400px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Aborder%2Dradius%3A%205px%3B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Afont%2Dsize%3A%2013px%3B%0Aline%2Dheight%3A%201%2E3%3B%0A%7D%0A%23TOC%20%2Etoctitle%20%7B%0Afont%2Dweight%3A%20bold%3B%0Afont%2Dsize%3A%2015px%3B%0Amargin%2Dleft%3A%205px%3B%0A%7D%0A%23TOC%20ul%20%7B%0Apadding%2Dleft%3A%2040px%3B%0Amargin%2Dleft%3A%20%2D1%2E5em%3B%0Amargin%2Dtop%3A%205px%3B%0Amargin%2Dbottom%3A%205px%3B%0A%7D%0A%23TOC%20ul%20ul%20%7B%0Amargin%2Dleft%3A%20%2D2em%3B%0A%7D%0A%23TOC%20li%20%7B%0Aline%2Dheight%3A%2016px%3B%0A%7D%0Atable%20%7B%0Amargin%3A%201em%20auto%3B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dcolor%3A%20%23DDDDDD%3B%0Aborder%2Dstyle%3A%20outset%3B%0Aborder%2Dcollapse%3A%20collapse%3B%0A%7D%0Atable%20th%20%7B%0Aborder%2Dwidth%3A%202px%3B%0Apadding%3A%205px%3B%0Aborder%2Dstyle%3A%20inset%3B%0A%7D%0Atable%20td%20%7B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dstyle%3A%20inset%3B%0Aline%2Dheight%3A%2018px%3B%0Apadding%3A%205px%205px%3B%0A%7D%0Atable%2C%20table%20th%2C%20table%20td%20%7B%0Aborder%2Dleft%2Dstyle%3A%20none%3B%0Aborder%2Dright%2Dstyle%3A%20none%3B%0A%7D%0Atable%20thead%2C%20table%20tr%2Eeven%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Ap%20%7B%0Amargin%3A%200%2E5em%200%3B%0A%7D%0Ablockquote%20%7B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Apadding%3A%200%2E25em%200%2E75em%3B%0A%7D%0Ahr%20%7B%0Aborder%2Dstyle%3A%20solid%3B%0Aborder%3A%20none%3B%0Aborder%2Dtop%3A%201px%20solid%20%23777%3B%0Amargin%3A%2028px%200%3B%0A%7D%0Adl%20%7B%0Amargin%2Dleft%3A%200%3B%0A%7D%0Adl%20dd%20%7B%0Amargin%2Dbottom%3A%2013px%3B%0Amargin%2Dleft%3A%2013px%3B%0A%7D%0Adl%20dt%20%7B%0Afont%2Dweight%3A%20bold%3B%0A%7D%0Aul%20%7B%0Amargin%2Dtop%3A%200%3B%0A%7D%0Aul%20li%20%7B%0Alist%2Dstyle%3A%20circle%20outside%3B%0A%7D%0Aul%20ul%20%7B%0Amargin%2Dbottom%3A%200%3B%0A%7D%0Apre%2C%20code%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0Aborder%2Dradius%3A%203px%3B%0Acolor%3A%20%23333%3B%0Awhite%2Dspace%3A%20pre%2Dwrap%3B%20%0A%7D%0Apre%20%7B%0Aborder%2Dradius%3A%203px%3B%0Amargin%3A%205px%200px%2010px%200px%3B%0Apadding%3A%2010px%3B%0A%7D%0Apre%3Anot%28%5Bclass%5D%29%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Acode%20%7B%0Afont%2Dfamily%3A%20Consolas%2C%20Monaco%2C%20%27Courier%20New%27%2C%20monospace%3B%0Afont%2Dsize%3A%2085%25%3B%0A%7D%0Ap%20%3E%20code%2C%20li%20%3E%20code%20%7B%0Apadding%3A%202px%200px%3B%0A%7D%0Adiv%2Efigure%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0Aimg%20%7B%0Abackground%2Dcolor%3A%20%23FFFFFF%3B%0Apadding%3A%202px%3B%0Aborder%3A%201px%20solid%20%23DDDDDD%3B%0Aborder%2Dradius%3A%203px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Amargin%3A%200%205px%3B%0A%7D%0Ah1%20%7B%0Amargin%2Dtop%3A%200%3B%0Afont%2Dsize%3A%2035px%3B%0Aline%2Dheight%3A%2040px%3B%0A%7D%0Ah2%20%7B%0Aborder%2Dbottom%3A%204px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Apadding%2Dbottom%3A%202px%3B%0Afont%2Dsize%3A%20145%25%3B%0A%7D%0Ah3%20%7B%0Aborder%2Dbottom%3A%202px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Afont%2Dsize%3A%20120%25%3B%0A%7D%0Ah4%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23f7f7f7%3B%0Amargin%2Dleft%3A%208px%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Ah5%2C%20h6%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23ccc%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Aa%20%7B%0Acolor%3A%20%230033dd%3B%0Atext%2Ddecoration%3A%20none%3B%0A%7D%0Aa%3Ahover%20%7B%0Acolor%3A%20%236666ff%3B%20%7D%0Aa%3Avisited%20%7B%0Acolor%3A%20%23800080%3B%20%7D%0Aa%3Avisited%3Ahover%20%7B%0Acolor%3A%20%23BB00BB%3B%20%7D%0Aa%5Bhref%5E%3D%22http%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0Aa%5Bhref%5E%3D%22https%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0A%0Acode%20%3E%20span%2Ekw%20%7B%20color%3A%20%23555%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Edt%20%7B%20color%3A%20%23902000%3B%20%7D%20%0Acode%20%3E%20span%2Edv%20%7B%20color%3A%20%2340a070%3B%20%7D%20%0Acode%20%3E%20span%2Ebn%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Efl%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Ech%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Est%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Eco%20%7B%20color%3A%20%23888888%3B%20font%2Dstyle%3A%20italic%3B%20%7D%20%0Acode%20%3E%20span%2Eot%20%7B%20color%3A%20%23007020%3B%20%7D%20%0Acode%20%3E%20span%2Eal%20%7B%20color%3A%20%23ff0000%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Efu%20%7B%20color%3A%20%23900%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%20code%20%3E%20span%2Eer%20%7B%20color%3A%20%23a61717%3B%20background%2Dcolor%3A%20%23e3d2d2%3B%20%7D%20%0A" rel="stylesheet" type="text/css" />
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">rSQM workflow</h1>
+<h4 class="author"><em>APEC Climate Center</em></h4>
+<h4 class="date"><em>2017-09-20</em></h4>
+
+
+
+<p>Since the workflow is kind of complicated(Don’t worry. It’s not hard.), this vignette shows you how to run the <code>rSQM</code> package to do a downscaling process with CMIP5(<a href="https://en.wikipedia.org/wiki/Coupled_model_intercomparison_project">Coupled model intercomparison project 5</a>) data and observation data. If you want to see more about the data used in this package and APEC climate center, visit our website <a href="http://www.apcc21.org" class="uri">http://www.apcc21.org</a>.</p>
+<div id="arguments-yaml-file." class="section level1">
+<h1>Arguments yaml file.</h1>
+<p>This procedure needs many datasets which tend to be large. Therefore, It is recommended to use meticulous directory structure, such as, project directory, observation directory, CMIP5 directory and so on. Before explaining those directories, see below <code>yaml</code> formatted file.</p>
+<pre><code>prjdir: D:/&quot;Your project name&quot;/foo
+dbdir: D:/&quot;Your project name&quot;/Database
+stndir: $(prjdir)/Observed/&quot;station or regional name recommened&quot;
+bnddir: $(prjdir)/gis-boundary
+qmapdir: $(prjdir)/Downscale/SQM
+syear_obs: 1976     # Starting year of observed data
+eyear_obs: 2005     # Ending year of observed data
+syear_his: 1976     # Starting year of historical period (GCM)
+eyear_his: 2005     # Ending year of historical period (GCM)
+syear_scn:         
+  - 2010
+  - 2040
+eyear_scn:
+  - 2039
+  - 2069
+SimAll: FALSE       # Option for simulation all (GCM model, Variable, RCPs) combinations
+ModelNames:
+  - bcc-csm1-1-m    # Beijing Climate Center,  China Meteorological Administration (128x64)
+  - CanESM2         # Canadian Centre for Climate Modelling and Analysis (128x64)
+  - CMCC-CMS        # Centro Euro-Mediterraneo per I Cambiamenti Climatici (192x96)
+  - CSIRO-Mk3-6-0   # Commonwealth Scientific and Industrial Research Organisation in  collaboration with the Queensland Climate Change Centre of Excellence (192x96)
+  - FGOALS-g2       # LASG, Institute of Atmospheric Physics, Chinese Academy of  Sciences; and CESS, Tsinghua University (128x60)
+  - HadGEM2-AO      # National Institute of Meteorological Research, Korea Meteorological Administration (192x145)
+  - inmcm4          # Institute for Numerical Mathematics (180x120)
+  - IPSL-CM5A-LR    # Institut Pierre-Simon Laplace (96x96)
+  - MIROC-ESM       # Japan Agency for Marine-Earth Science and Technology, Atmosphere and Ocean Research Institute, and  National Institute for Environmental Studies (128x64)
+  - MPI-ESM-LR      # Max Planck Institute for Meteorology (MPI-M) (192x96)
+  - NorESM1-M       # Norwegian Climate Centre (144x96)
+RcpNames:
+  - rcp85           # Representative Concentration Pathway (RCP) 8.5 Scenarios
+VarNames:
+  - pr              #Precipitation (mm)
+  - tasmax          #Max. temperature (C)
+  - tasmin          #Min. temperature (C)
+NtlCode: KR
+stnfile: Station-Info.csv   # Station meta file, name it dishtinguibly in case many regions involved.
+bndfile: Korea.shp
+OWrite: TRUE
+SRadiation: FALSE</code></pre>
+<p>You might be familiar with those arguments, now see each of them one by one. At first, you create a super directory at large memory available path with name distinguishable, date and region are really good things to be written in the name, making your job path distinguishable. In this vignette, I name the name “APCC”(APEC Climate Center). D:/APCC.</p>
+<pre><code>prjdir: D:/APCC/project # This is your project directory where the downscaled results would be filed up.
+dbdir: D:/APCC/Database # This is your database directory where the CMIP5 data needed for the work would be saved.
+stndir: $(prjdir)/Observed/Korea # This is the directory to be filed up with observation data. I name it &quot;Korea&quot; in this tutorial</code></pre>
+<p>Above three directories(prjdir, dbdir, stndir) must be prepared(created) in advance. That’s because we assume you have your own observation data beforehand. You need to store station csv file and observation csv file in stndir(station directory). Station file(stnfile) is described in detail below. Observation file should be csv formatted and look like this. Each file name must contain the station ID(eg, ID108).</p>
+<table>
+<thead>
+<tr class="header">
+<th align="center">Year</th>
+<th align="center">Mon</th>
+<th align="center">Day</th>
+<th align="center">Pcp(mm)</th>
+<th align="center">Tmax(c)</th>
+<th align="center">Tmin(c)</th>
+<th align="center">WSpeed(m/s)</th>
+<th align="center">RHumidity(fr)</th>
+<th align="center">SRad(MJ/m2)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">1969</td>
+<td align="center">1</td>
+<td align="center">1</td>
+<td align="center">0.1</td>
+<td align="center">-3.3</td>
+<td align="center">-11</td>
+<td align="center">1.5</td>
+<td align="center">0.727</td>
+<td align="center">13.9</td>
+</tr>
+<tr class="even">
+<td align="center">1969</td>
+<td align="center">1</td>
+<td align="center">2</td>
+<td align="center">0</td>
+<td align="center">-6.4</td>
+<td align="center">-12.9</td>
+<td align="center">1.8</td>
+<td align="center">0.8</td>
+<td align="center">12.8</td>
+</tr>
+<tr class="odd">
+<td align="center">1969</td>
+<td align="center">1</td>
+<td align="center">3</td>
+<td align="center">0.1</td>
+<td align="center">-4.2</td>
+<td align="center">-14.4</td>
+<td align="center">2.6</td>
+<td align="center">0.813</td>
+<td align="center">7.75</td>
+</tr>
+<tr class="even">
+<td align="center">1969</td>
+<td align="center">1</td>
+<td align="center">4</td>
+<td align="center">0</td>
+<td align="center">0.7</td>
+<td align="center">-10.4</td>
+<td align="center">2.7</td>
+<td align="center">0.617</td>
+<td align="center">16.46</td>
+</tr>
+<tr class="odd">
+<td align="center">1969</td>
+<td align="center">1</td>
+<td align="center">5</td>
+<td align="center">3.9</td>
+<td align="center">-1</td>
+<td align="center">-8.6</td>
+<td align="center">4.4</td>
+<td align="center">0.86</td>
+<td align="center">8.44</td>
+</tr>
+<tr class="even">
+<td align="center">1969</td>
+<td align="center">1</td>
+<td align="center">6</td>
+<td align="center">…</td>
+<td align="center">…</td>
+<td align="center">…</td>
+<td align="center">…</td>
+<td align="center">…</td>
+<td align="center">…</td>
+</tr>
+</tbody>
+</table>
+<p>Header names are not much critical, but the order is. <code>Year</code>, <code>Month</code>, <code>Day</code>, <code>Precipitation</code>, <code>Tasmax</code>, <code>Tasmin</code>, <code>Wind Speed</code>, <code>Relative Humidity</code>, and <code>Solar Radiation</code> should be in this order. Of course, the unit matters too.</p>
+<pre><code>bnddir: $(prjdir)/gis-boundary # Under development, providing shp. files for further work.
+qmapdir: $(prjdir)/Downscale/SQM # This directory will contain final result passed through SQM(Simple Quantile Mapping)
+syear_obs: 1976     # Starting year of observed data
+eyear_obs: 2005     # Ending year of observed data
+syear_his: 1976     # Starting year of historical period (GCM)
+eyear_his: 2005     # Ending year of historical period (GCM)
+syear_scn:         
+  - 2010
+  - 2040
+eyear_scn:
+  - 2039
+  - 2069            # Start years and End years of climate change scenario.
+SimAll: FALSE       # Option for simulation all (GCM model, Variable, RCPs) combinations</code></pre>
+<p>If you put TRUE to SimAll argument, your process runs over all the models including GCMs, RCMs and RCPs. Obviously, takes a long time.</p>
+<pre><code>ModelNames:
+  - bcc-csm1-1-m    # Beijing Climate Center,  China Meteorological Administration (128x64)
+  - CanESM2         # Canadian Centre for Climate Modelling and Analysis (128x64)
+  - CMCC-CMS        # Centro Euro-Mediterraneo per I Cambiamenti Climatici (192x96)
+  - CSIRO-Mk3-6-0   # Commonwealth Scientific and Industrial Research Organisation in  collaboration with the Queensland Climate Change Centre of Excellence (192x96)
+  - FGOALS-g2       # LASG, Institute of Atmospheric Physics, Chinese Academy of  Sciences; and CESS, Tsinghua University (128x60)
+  - HadGEM2-AO      # National Institute of Meteorological Research, Korea Meteorological Administration (192x145)
+  - inmcm4          # Institute for Numerical Mathematics (180x120)
+  - IPSL-CM5A-LR    # Institut Pierre-Simon Laplace (96x96)
+  - MIROC-ESM       # Japan Agency for Marine-Earth Science and Technology, Atmosphere and Ocean Research Institute, and  National Institute for Environmental Studies (128x64)
+  - MPI-ESM-LR      # Max Planck Institute for Meteorology (MPI-M) (192x96)
+  - NorESM1-M       # Norwegian Climate Centre (144x96)
+RcpNames:
+  - rcp85           # Representative Concentration Pathway (RCP) 8.5 Scenarios</code></pre>
+<p>Otherwise, FALSE on SimAll, and specify model names you want to use in simulation.</p>
+<pre><code>VarNames:
+  - pr              #Precipitation (mm)
+  - tasmax          #Max. temperature (C)
+  - tasmin          #Min. temperature (C)</code></pre>
+<p>Variable names, pr(precipitation inmm), tasmax/tasmin(max/min temperature in Celcius degree), sfcWind(wind speed in m/s), rhs(relative humidity in fraction, not percentage), rsds(solar radiation in Mega Joule per square meter)</p>
+<pre><code>NtlCode: KR         </code></pre>
+<p>National Code used when downloading clipped CMIP5 data from ADSS(APEC Data Service Syetem). If you have no idea, visit ADSS website. You can find the national code of the region of your interest.</p>
+<pre><code>stnfile: Station-Info.csv</code></pre>
+<p>‘stnfile’ is a csv(comma-seperated values) file. This is a kind of meta file over all the station information. One picture is worth a thousand words, see below.</p>
+<table>
+<thead>
+<tr class="header">
+<th align="center">Lon</th>
+<th align="center">Lat</th>
+<th align="center">Elev</th>
+<th align="center">ID</th>
+<th align="center">Ename</th>
+<th align="center">SYear</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">126.95</td>
+<td align="center">37.5667</td>
+<td align="center">85.8</td>
+<td align="center">ID108</td>
+<td align="center">Seoul</td>
+<td align="center">1908</td>
+</tr>
+<tr class="even">
+<td align="center">127.3667</td>
+<td align="center">36.3667</td>
+<td align="center">68.9</td>
+<td align="center">ID133</td>
+<td align="center">Daejeon</td>
+<td align="center">1969</td>
+</tr>
+<tr class="odd">
+<td align="center">129.0167</td>
+<td align="center">35.1</td>
+<td align="center">69.6</td>
+<td align="center">ID159</td>
+<td align="center">Busan</td>
+<td align="center">1905</td>
+</tr>
+</tbody>
+</table>
+<p>Lon, Lat, and Elev are Longitude, Latitude, and Elevation of observatory respectively. And ID is the ID of obvervatory and Ename is the region where it is. SYear is the year the observation starts. There is one more thing you need to be aware of. If you lack of your own observation data so use GHCN observation data, name the stnfile ‘Station-Info.csv’. We know it seems to be little awkward. But, the procedure is designed to run with that name over GHCN data.</p>
+<pre><code>bndfile: Korea.shp  # Under development, the shape file for further work.
+OWrite: TRUE</code></pre>
+<p>Downscaling process is heavy work. That means sometimes you need pause it and go again. Then you put TURE on OWrite(Overwrite) which make things continue.</p>
+<pre><code>SRadiation: FALSE</code></pre>
+<p>SRadiation(Solar Radiation) is a variable not likely to be. If it is luckily, put TRUE on it.</p>
+<hr />
+</div>
+<div id="workflow" class="section level1">
+<h1>Workflow</h1>
+<p>Now we complete writing yaml file, that is, necessary arguments are prepared. Before going on, let’s review the directories and corresponing data.</p>
+<pre><code>Your Working Directory(recommended to be in where large amount of disk memory available)
+        |
+        |  In your working directory, the yaml file which has necessary arguments must be in.
+      -------------------
+      |                 |
+  Database            Project Diretory
+      |                           |
+ CMIP5 Directory          ---------------------------------------
+      |                   |                   |                 |
+ CMIP5 scenario data   gis-boundary       Observed          Downscale
+downloaded from ADSS      |                   |                 |(final downscaled results)
+must have 4073 files.   shape file          KOREA               -------
+                       (Under dev.)   (or the region you        |     |
+                                       are interested in.)     OBS   SQM
+                                              |
+                                station meta file and observation csv files
+                              for each stations(meteorological observatories)</code></pre>
+<div id="write-down-your-project-details-in-yaml-format-and-place-it-in-your-working-directory" class="section level3">
+<h3>0. Write down your project details in yaml format and place it in your working directory</h3>
+<p>Set your working directory, say it <code>D:/rSQMsample</code>, and create prjdir(<code>D:/rSQMsample/prj</code>), dbdir(<code>D:/rSQMsample/prj/Database</code>) and stndir(<code>D:/rSQMsample/prj/Observed/Korea</code>). If you have your own observation data and station information, let them in stndir.</p>
+</div>
+<div id="load-library-and-set-working-directory" class="section level3">
+<h3>1. load library and set working directory</h3>
+<pre><code>&gt;library(rSQM)
+&gt;setwd(&quot;D:/sampleProject&quot;)</code></pre>
+</div>
+<div id="set-working-environment-and-parameters-needed." class="section level3">
+<h3>2. Set working environment and parameters needed.</h3>
+<pre><code>&gt;EnvList &lt;- SetWorkingEnvironment(envfile = &quot;rSQM.yaml&quot;)</code></pre>
+<p>Let’s look into this EnvList file, which is list object containing arguments.</p>
+<pre><code>&gt;EnvList
+$prjdir
+[1] &quot;D:/rSQMsample/prj&quot;
+
+$dbdir
+[1] &quot;D:/rSQMsample/Database&quot;
+
+$qmapdir
+[1] &quot;D:/rSQMsample/prj/Downscale/SQM&quot;
+
+$bnddir
+[1] &quot;D:/rSQMsample/prj/gis-boundary&quot;
+
+$stndir
+[1] &quot;D:/rSQMsample/prj/Observed/Korea&quot;
+
+$syear_obs
+[1] 1976
+
+$eyear_obs
+[1] 2005
+
+$syear_his
+[1] 1976
+
+$eyear_his
+[1] 2005
+
+$syear_scn
+[1] 2010 2040
+
+$eyear_scn
+[1] 2039 2069
+
+$SimAll
+[1] FALSE
+
+$ModelNames
+ [1] &quot;bcc-csm1-1-m&quot;  &quot;CanESM2&quot;       &quot;CMCC-CMS&quot;      &quot;CSIRO-Mk3-6-0&quot;
+ [5] &quot;FGOALS-g2&quot;     &quot;HadGEM2-AO&quot;    &quot;inmcm4&quot;        &quot;IPSL-CM5A-LR&quot; 
+ [9] &quot;MIROC-ESM&quot;     &quot;MPI-ESM-LR&quot;    &quot;NorESM1-M&quot;    
+
+$RcpNames
+[1] &quot;rcp85&quot;
+
+$VarNames
+[1] &quot;pr&quot;     &quot;tasmax&quot; &quot;tasmin&quot;
+
+$NtlCode
+[1] &quot;KR&quot;
+
+$stndir
+[1] &quot;D:/rSQMsample/prj/Observed/Korea&quot;
+
+$stnfile
+[1] &quot;Station-Info.csv&quot;
+
+$bndfile
+[1] &quot;Korea.shp&quot;
+
+$OWrite
+[1] TRUE
+
+$SRadiation
+[1] FALSE
+
+$cmip5dir
+[1] &quot;D:/rSQMsample/Database/cmip5_daily_KR&quot;</code></pre>
+<p>The other directories, qmapdir, bnddir, and cmip5dir, are created automatically in right path.</p>
+</div>
+<div id="load-clipped-cmip5-scenario-data-from-adssapcc-data-service-system" class="section level3">
+<h3>3. Load Clipped CMIP5 scenario data from ADSS(APCC Data Service System)</h3>
+<p>The CMIP5 data is clipped and served by APEC Climate Center.</p>
+<pre><code>LoadCmip5DataFromAdss(dbdir = EnvList$dbdir, NtlCode = EnvList$NtlCode)</code></pre>
+<p>or just type</p>
+<pre><code>do.call(LoadCmip5DataFromAdss, EnvList)</code></pre>
+<p>After some little time with pop up logging, the data are located in <code>D:\rSQMsample\Database\cmip5_daily_KR</code>. <code>daily</code> means the scenario data is daily-scaled and KR standing for the national code.</p>
+<p>(Optional). Load observations from GHCN(Global Historical Climatology Network)</p>
+<pre><code> GhcnDailyUpdate(
+   NtlCode = EnvList$NtlCode,
+   stndir = EnvList$stndir,
+   syear_obs = EnvList$syear_obs,
+   eyear_obs = EnvList$eyear_obs)</code></pre>
+<p>or just</p>
+<pre><code>do.call(GhcnDailyUpdate, EnvList)</code></pre>
+<p>If there is no your own observation data, <a href="https://www.ncdc.noaa.gov/data-access/land-based-station-data/land-based-datasets/global-historical-climatology-network-ghcn">Global Historical Climatology Network</a> provides world-wide meteorological observations. You can download the data ‘GhcnDailyUpdate’ function. However, We recommend you that prepare own observation dataset since Ghcn data often has lots of missing values. When this step is done, the station metafile(named <code>Station-Info.csv</code>) and Observations are located in stndir.</p>
+</div>
+<div id="downscale-daily-cmip5-data" class="section level3">
+<h3>4. Downscale Daily CMIP5 Data</h3>
+<p>Now that you have all necessary input data, let’s begin downscaling process. This extracts daily time series for every combination of varialbes, GCM models, and RCP scenarios as text format.</p>
+<pre><code>DailyExtractAll(
+  cmip5dir = EnvList$cmip5dir,
+  stndir = EnvList$stndir,
+  stnfile = EnvList$stnfile,
+  qmapdir = EnvList$qmapdir,
+  SimAll = EnvList$SimAll,
+  ModelNames = EnvList$ModelNames,
+  RcpNames = EnvList$RcpNames,
+  VarNames = EnvList$VarNames,
+  OWrite = EnvList$OWrite)</code></pre>
+<p>or just</p>
+<pre><code>do.call(DailyExtractAll, EnvList)</code></pre>
+<p>After <code>DailyExtractAll</code> function is over successfully. For each scenario mode, corresponding directory is created in qmapdir <code>D:/rSQMsample/prj/Downscale/SQM</code>. For instance, <code>CanESM2</code> model directory is <code>D:/rSQMsample/prj/Downscale/SQM/CanESM2</code>. Temporary files are stored in <code>'model directory'/365adj</code>, that’s because the number of days per year differs from models, so <code>DailyExtractAll</code> calls internal logic and adjusts it in 365 days. Those temporary files are used in quantile mapping step at following step.</p>
+</div>
+<div id="bias-correction-using-simple-quantile-mapping-sqm" class="section level3">
+<h3>5. Bias Correction using Simple Quantile-Mapping (SQM)</h3>
+<pre><code>DailyQMapAll(
+  stndir = EnvList$stndir,
+  stnfile = EnvList$stnfile,
+  qmapdir = EnvList$qmapdir,
+  prjdir = EnvList$prjdir,
+  SimAll = EnvList$SimAll,
+  RcpNames = EnvList$RcpNames,
+  VarNames = EnvList$VarNames,
+  syear_obs = EnvList$syear_obs,
+  eyear_obs = EnvList$eyear_obs,
+  syear_his = EnvList$syear_his,
+  eyear_his = EnvList$eyear_his,
+  syear_scn = EnvList$syear_scn,
+  eyear_scn = EnvList$eyear_scn,
+  OWrite = EnvList$OWrite,
+  SRadiation = EnvList$SRadiation)</code></pre>
+<p>or just</p>
+<pre><code>do.call(DailyQMapAll, EnvList)</code></pre>
+<p>This is the last step apply quantile mapping over the downscaled data. The results are in <code>D:/rSQMsample/prj/Downscale/SQM/&quot;Model Name&quot;</code>. Specifically, assumed that we went through abovr steps with station <code>ID108</code>, model <code>CanESM2</code>, and rcp scenario <code>rcp45</code>. Then 4 result generated.</p>
+<pre><code>ID108_SQM_CanESM2_historical.csv
+ID108_SQM_CanESM2_historical_original.csv
+ID108_SQM_CanESM2_rcp45.csv`
+ID108_SQM_CanESM2_rcp45_original.csv`</code></pre>
+<p>“original” implies that “before quantile-mapping”. “historical” files are retult over historical period, and “rcp45” files are over future period.</p>
+<hr />
+</div>
+<div id="additional-remarks" class="section level2">
+<h2>Additional Remarks</h2>
+<ol style="list-style-type: decimal">
+<li>A process over this package needs to connect to web server to download required data. This means that unstable internet connectivity fails works.</li>
+<li>If you have any problem, contact <a href="mailto:climate.service@apcc21.org">climate.service@apcc21.org</a></li>
+</ol>
+<p>Hope this package would be useful. :)</p>
+</div>
+</div>
+
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
