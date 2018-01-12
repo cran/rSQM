@@ -63,8 +63,8 @@
 #' @export
 #'
 #'
-DailyQMapAll <- function(stndir, stnfile, qmapdir, prjdir, SimAll, RcpNames, VarNames, syear_obs, eyear_obs, syear_his, eyear_his, syear_scn, eyear_scn, OWrite, SRadiation) {
-
+DailyQMapAll <- function(stndir, stnfile, qmapdir, prjdir, SimAll, RcpNames, VarNames, syear_obs, eyear_obs, syear_his, eyear_his, syear_scn, eyear_scn, OWrite, SRadiation) 
+  {
   HistSDate <- as.Date(paste(syear_his, "-01-01", sep=""))
   HistEDate <- as.Date(paste(eyear_his, "-12-31", sep=""))
   SDates <- as.Date(paste(syear_scn, "-01-01", sep=""))
@@ -81,12 +81,12 @@ DailyQMapAll <- function(stndir, stnfile, qmapdir, prjdir, SimAll, RcpNames, Var
   }
 
   if(SimAll){
-    varnms = c("prcp", "tmax", "tmin", "wspd", "rhum", "rsds")
+    varnms <- c("prcp", "tmax", "tmin", "wspd", "rhum", "rsds")
     scnnms <- c('historical', 'rcp26', 'rcp45', 'rcp60', 'rcp85')
   } else {
-    VarAll = c("pr", "tasmax", "tasmin", "sfcWind", "rhs", "rsds")
+    VarAll <- c("pr", "tasmax", "tasmin", "sfcWind", "rhs", "rsds")
     FixedVarNms <- c("prcp", "tmax", "tmin", "wspd", "rhum", "rsds")
-    LocNum = grep(paste(VarNames, collapse = "|"), VarAll)
+    LocNum <- grep(paste(VarNames, collapse = "|"), VarAll)
     varnms <- FixedVarNms[LocNum]
 
     scnnms <- unique(c('historical', RcpNames))
@@ -113,8 +113,8 @@ DailyQMapAll <- function(stndir, stnfile, qmapdir, prjdir, SimAll, RcpNames, Var
   Model_Cnt <- length(ModelNames)
 
   for (mm in 1:Model_Cnt) {
-    Model_Name <- ModelNames[mm]
 
+    Model_Name <- ModelNames[mm]
     # Check the file exists(check the last station file)
     stnnmlast <- stnnms[length(stnnms)]
     ofiletest <- file.path(qmapdir, Model_Name, paste(stnnmlast, "_SQM_", Model_Name, "_historical.csv", sep=""))
@@ -145,7 +145,7 @@ DailyQMapAll <- function(stndir, stnfile, qmapdir, prjdir, SimAll, RcpNames, Var
 
         if(CPeriod){
           mrgdata <- GetCommonPeriod(obsdata, rcpdata)
-          if(nrow(mrgdata)==0) {next}
+          if(nrow(mrgdata)==0) next
 
           # Maximum common period between Obs and RCP dataset
           comsdate <- min(mrgdata[, "date"])
@@ -164,14 +164,13 @@ DailyQMapAll <- function(stndir, stnfile, qmapdir, prjdir, SimAll, RcpNames, Var
           #SetWorkingDir(obsoutdir)
           outfile <- file.path(obsoutdir, paste(stnid, "_observed.csv", sep=""))
           #outfile = paste(Model_Name,"_",stnid,"_original.csv", sep="")
-          if(!file.exists(outfile) | OWrite == T){
-            write.csv(obsdata[, !(names(obsdata) %in% c("yearmon", "date"))], outfile, row.names=F)
+          if(!file.exists(outfile) | OWrite == TRUE){
+            write.csv(obsdata[, !(names(obsdata) %in% c("yearmon", "date"))], outfile, row.names=FALSE)
           }
-
 
           # Write Obs data without BC
           outfile <- file.path(qmapdir,  Model_Name, paste(stnid, "_SQM_", Model_Name, "_historical_original.csv", sep=""))
-          write.csv(rcpdata[, !(names(rcpdata) %in% c("yearmon", "date"))], outfile, row.names=F)
+          write.csv(rcpdata[, !(names(rcpdata) %in% c("yearmon", "date"))], outfile, row.names=FALSE)
 
           # summary for before the bias correction
           mrgdata <- mrgdata[which(mrgdata[, "date"] >= HistSDate & mrgdata[, "date"] <= HistEDate),]
@@ -193,7 +192,7 @@ DailyQMapAll <- function(stndir, stnfile, qmapdir, prjdir, SimAll, RcpNames, Var
           colnames(obsprint) <- c("year", "mon", "day", "yearmon", "date", "prcp", "tmax", "tmin", "wspd", "rhum", "rsds")
           outfile <- file.path(obsoutdir, paste(stnid, "_observed.csv", sep=""))
           if(!file.exists(outfile) | OWrite){
-            write.csv(obsprint[, !(names(obsprint) %in% c("yearmon", "date"))], outfile, row.names=F)
+            write.csv(obsprint[, !(names(obsprint) %in% c("yearmon", "date"))], outfile, row.names=FALSE)
           }
 
 
@@ -203,7 +202,7 @@ DailyQMapAll <- function(stndir, stnfile, qmapdir, prjdir, SimAll, RcpNames, Var
           #outfile = paste(Model_Name,"_",stnid,"_original.csv", sep="")
           #write.csv(rcpdata[-c(1:3)], outfile, row.names=F)
           outfile <- file.path(qmapdir, Model_Name, paste(stnid, "_SQM_", Model_Name, "_historical_original.csv", sep=""))
-          write.csv(rcpdata[, !(names(rcpdata) %in% c("yearmon", "date"))], outfile, row.names=F)
+          write.csv(rcpdata[, !(names(rcpdata) %in% c("yearmon", "date"))], outfile, row.names=FALSE)
 
 
 
@@ -241,26 +240,34 @@ DailyQMapAll <- function(stndir, stnfile, qmapdir, prjdir, SimAll, RcpNames, Var
           for(i in 1:varcnt){
             varnm <- varnms[i]
             qmf <- paste("qmf", varnm, j, sep = "_")
-
+            
+            ##temporal qmf
+            t_qmf <- qmf
             ### It takes error"Error in get(qmf) : object 'qmf_prcp_1' not found"
             # So, run QMapping without function
             #rcpimsi = DoQmap(qmf, rcpdata, varnm, j, sdate, edate)
             sdate <- as.Date(sdate); edate <- as.Date(edate)
             monid <- j
             qmf <- get(qmf)
+            print(qmf)
 
             rcpprd <- rcpdata[which(rcpdata[ ,"mon"] == monid & rcpdata[ ,"date"] >= sdate & rcpdata[ ,"date"] <= edate), which(colnames(rcpdata) == varnm)]
+            #print(rcpprd)
+            
+            # temporary path for checking files
+#            t_path <- "C:/Users/APCC-26/Documents/myworks/Iran/tt"
+#            write.csv(rcpprd, file = file.path(t_path, t_qmf), row.names = FALSE)
             date <- rcpdata[which(rcpdata[ ,"mon"] == monid & rcpdata[ ,"date"] >= sdate & rcpdata[ ,"date"] <= edate),"date"]
 
             if(all(is.na((qmf$par)$fitq)) | length(table((qmf$par)$fitq)) == 1){
-              rcpimsi <- rcpprd; rcpimsi[] = -99
+              rcpimsi <- rcpprd; rcpimsi[] <- -99
             } else {
               # if all rcp data is missing(NA: -99)
               if(sum(!(rcpprd == -99))>0){
-#                print(class(rcpprd))
+#               print(class(rcpprd))
                 rcpimsi <- Qmap(rcpprd, qmf)
               }else {
-                rcpimsi <- rcpprd; rcpimsi[] = -99
+                rcpimsi <- rcpprd; rcpimsi[] <- -99
               }
             }
 
@@ -274,32 +281,32 @@ DailyQMapAll <- function(stndir, stnfile, qmapdir, prjdir, SimAll, RcpNames, Var
               #rcpadj = cbind.data.frame(rcpadj, rcpimsi[,varnm])
               rcpadj <- merge(rcpadj, rcpimsi)
             }
-          }
+          } # end of loop for variable
           if(j == 1) {
             rcphist <- rcpadj
           }else {
             rcphist <- rbind(rcphist, rcpadj)
           }
 
-        }
+        } # end of month loop
         rcphist <- rcphist[order(rcphist["date"]),]
         #colnames(rcphist) = c("date",varnms)
         rcphist <- FillDate(rcphist)
 
         # replace with -99 if the variable is missing
-        if(length(unique(rcpdata$prcp)) == 1) {rcphist$prcp = -99.0}
-        if(length(unique(rcpdata$tmax)) == 1) {rcphist$tmax = -99.0}
-        if(length(unique(rcpdata$tmin)) == 1) {rcphist$tmin = -99.0}
-        if(length(unique(rcpdata$wspd)) == 1) {rcphist$wspd = -99.0}
-        if(length(unique(rcpdata$rhum)) == 1) {rcphist$rhum = -99.0}
-        if(length(unique(rcpdata$rsds)) == 1) {rcphist$rsds = -99.0}
+        if(length(unique(rcpdata$prcp)) == 1) {rcphist$prcp <- -99.0}
+        if(length(unique(rcpdata$tmax)) == 1) {rcphist$tmax <- -99.0}
+        if(length(unique(rcpdata$tmin)) == 1) {rcphist$tmin <- -99.0}
+        if(length(unique(rcpdata$wspd)) == 1) {rcphist$wspd <- -99.0}
+        if(length(unique(rcpdata$rhum)) == 1) {rcphist$rhum <- -99.0}
+        if(length(unique(rcpdata$rsds)) == 1) {rcphist$rsds <- -99.0}
 
 
         SetWorkingDir(outdir)
         #outfile = paste(Model_Name,"_",stnid,"_",scnnms[1],".csv", sep="")
         #write.csv(rcphist[-c(1:3)], outfile, row.names=F)
         outfile <- file.path(qmapdir, Model_Name, paste(stnid, "_SQM_", Model_Name, "_", scnnms[1], ".csv", sep=""))
-        write.csv(rcphist[, !(names(rcphist) %in% c("yearmon", "date"))], outfile, row.names=F)
+        write.csv(rcphist[, !(names(rcphist) %in% c("yearmon", "date"))], outfile, row.names=FALSE)
 
         if(CPeriod){
           # Check the bias-corrected data using graph (Only when CPeriod  is True)
@@ -311,7 +318,7 @@ DailyQMapAll <- function(stndir, stnfile, qmapdir, prjdir, SimAll, RcpNames, Var
         for (n in 1:4) {
 
           srchstr <- paste("*", scnnms[(n+1)],"*prcp.csv", sep="")
-          flist <- list.files(indir, pattern = glob2rx(srchstr), full.names = F)
+          flist <- list.files(indir, pattern = glob2rx(srchstr), full.names = FALSE)
           nfile <- length(flist)
 
           if(nfile==0) {
@@ -320,7 +327,7 @@ DailyQMapAll <- function(stndir, stnfile, qmapdir, prjdir, SimAll, RcpNames, Var
 
             rcpdata <- Cmip5Var2Stn(stnid, varnms, scnnms[(n+1)], indir, Model_Name)
             outfile <- file.path(qmapdir, Model_Name, paste(stnid, "_SQM_", Model_Name, "_", scnnms[(n+1)], "_original.csv", sep=""))
-            write.csv(rcpdata[, !(names(rcpdata) %in% c("yearmon", "date"))], outfile, row.names=F)
+            write.csv(rcpdata[, !(names(rcpdata) %in% c("yearmon", "date"))], outfile, row.names=FALSE)
             for (m in 1:length(SDates[])){
               sdate <- SDates[m]
               edate <- EDates[m]
@@ -345,7 +352,7 @@ DailyQMapAll <- function(stndir, stnfile, qmapdir, prjdir, SimAll, RcpNames, Var
                     if(sum(!(rcpprd == -99))>0){
                       rcpimsi <- Qmap(rcpprd, qmf)
                     }else {
-                      rcpimsi <- rcpprd; rcpimsi[] = -99
+                      rcpimsi <- rcpprd; rcpimsi[] <- -99
                     }
                   }
                   rcpimsi <- cbind.data.frame(date, rcpimsi)

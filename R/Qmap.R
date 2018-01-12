@@ -24,8 +24,7 @@ Qmap.default <- function(x,fobj,type=c("linear","tricub"),...){
       out[largex] <- x[largex] - max.delta
     }
   } else if(type=="tricub"){
-    sfun <- splinefun(x=fobj$par$modq[,1], y=fobj$par$fitq[,1],
-                      method="monoH.FC")#,method="monoH.FC")   
+    sfun <- splinefun(x=fobj$par$modq[,1], y=fobj$par$fitq[,1], method="monoH.FC")   
     out[wet] <- sfun(x[wet])
   }
   out[!wet] <- 0

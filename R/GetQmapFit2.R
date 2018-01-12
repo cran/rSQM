@@ -14,7 +14,11 @@ GetQmapFit2 <- function(obsdata, rcpdata, varnm, monid) {
   } else {
     qmf <- qmap::fitQmap(obsmon, rcpmon, method="QUANT", qstep=0.01, wet.day=F, na.rm=T)
   }
-
-
+  
+  ## Logic for avoding unique values
+  tmp <- qmf$par$modq
+  if(length(unique(tmp))==1) tmp[1:4] <- c(0.1, 0.075, 0.05, 0.025)
+  qmf$par$modq <- tmp
+  
   return(qmf)
 }

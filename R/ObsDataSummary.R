@@ -15,8 +15,6 @@ globalVariables(c("Mon", "value", "variable"))
 #'   "Start yaer of observations",
 #'   "End year of observations"
 #'  )
-#'
-#'
 #' }
 #' @return NULL
 #' @export
@@ -26,10 +24,10 @@ ObsDataSummary  <- function(obsdir, stnfile, VarNames, syear_obs, eyear_obs) {
 
   options(stringsAsFactors = FALSE)
 
-  stninfo <- read.csv(file.path(obsdir, stnfile), header = T)
+  stninfo <- read.csv(file.path(obsdir, stnfile), header = TRUE)
 
   smrydir <- sprintf("%s/summary", obsdir)
-  if(!dir.exists(smrydir)){dir.create(smrydir, recursive = F, showWarnings = F)}
+  if(!dir.exists(smrydir)){dir.create(smrydir, recursive = FALSE, showWarnings = FALSE)}
 
   for(j in 1:length(VarNames)){
 
@@ -48,7 +46,7 @@ ObsDataSummary  <- function(obsdir, stnfile, VarNames, syear_obs, eyear_obs) {
       Date <- as.data.frame(seq(sdate, edate, by ="day"))
       colnames(Date) <- c("Date")
 
-      tempobs <- merge(Date, obsdata, all=T)
+      tempobs <- merge(Date, obsdata, all=TRUE)
       tempobs <- tempobs[which(tempobs$Date >= sdate & tempobs$Date <= edate), c("Mon", varnm)]
 
       aggdata <- aggregate(.~Mon, data=tempobs, FUN=mean,na.rm=TRUE)

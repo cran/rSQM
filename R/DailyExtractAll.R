@@ -59,7 +59,7 @@ DailyExtractAll <- function(cmip5dir, stndir, stnfile, qmapdir, SimAll, ModelNam
 
     Model_Name <- ModelNames[i]
 
-    srchstr <- paste("*", Model_Name, "*.nc", sep="")
+    srchstr <- paste("*_", Model_Name, "_*.nc", sep="")
     flist <- list.files(cmip5dir, pattern = glob2rx(srchstr), full.names = F)
     nfile <- length(flist)
 

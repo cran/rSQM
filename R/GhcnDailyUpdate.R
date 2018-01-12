@@ -58,6 +58,7 @@ GhcnDailyUpdate <- function(NtlCode, stndir, syear_obs, eyear_obs) {
                             "MH","RM",
                             "MM","BM",
                             "MN","MG",
+                            "IR","IR",
                             "MY","MY",
                             "NP","NP",
                             "PH","RP",
@@ -67,7 +68,7 @@ GhcnDailyUpdate <- function(NtlCode, stndir, syear_obs, eyear_obs) {
                             "TZ","TZ",
                             "VN","VM",
                             "WS","AQ",
-                            "ZM","ZA"), nrow = 24, ncol = 2, byrow = TRUE, dimnames = list(NULL,c("ADSS", "GHCN")))
+                            "ZM","ZA"), nrow = 25, ncol = 2, byrow = TRUE, dimnames = list(NULL,c("ADSS", "GHCN")))
   ivntdata <- read.table(ivntfile, header = F, col.names = c("ID", "Lat", "Lon", "var", "syear", "eyear"))
   if(nchar(NtlCode)==4 && substr(NtlCode,1,2)=="US")
   {

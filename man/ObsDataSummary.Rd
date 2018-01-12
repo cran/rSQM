@@ -28,7 +28,5 @@ ObsDataSummary
   "Start yaer of observations",
   "End year of observations"
  )
-
-
 }
 }
